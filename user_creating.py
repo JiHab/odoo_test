@@ -36,25 +36,25 @@ except ConnectionRefusedError:
 except:
     print('Ошибка при аутентификации')
     quit()
-
+#получаем модели для работы
 models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
 isvalid, login = login_is_valid(new_login, db, uid, password)
 if not isvalid:
     quit()
-
+#создаем партнера
 id = models.execute_kw(db, uid, password, 'res.partner', 'create', [{
     'name': new_username,
     'city': new_user_city,
     'street': new_user_street,
 }])
-
+#создаем юзера - дочернего партнеру выше (поле 'partner_id')
 u_id = models.execute_kw(db, uid, password, 'res.users', 'create', [{
     'name': new_username,
     'login': login,
     'partner_id': id
 }])
-
+#заполняем поле партнера дочерним юзером
 models.execute_kw(db, uid, password, 'res.partner', 'write', [[id], {
     'user_id': u_id
 }])
